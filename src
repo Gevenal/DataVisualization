@@ -1,0 +1,122 @@
+/**Description: The graph represents US GDP from 1930 to 2015.
+  * To interact with the graph, move your mouse and you can get the amount of GDP depending on which year you are at.
+ * Inspiration: Clsss exercises.
+ * Experience: The most challenging part is designing the interation. At first I set the test condition to equal for two floating point numbers which is very hard,
+   so eventually I changed the boolean test to a small range to make it work.
+ * I learned how to visualize data using processing.*/
+
+
+float[] gdp;
+int[] year;
+float x1, y1, x2, y2;
+float maxGDP, minGDP, maxYear, minYear;
+
+void setup() {
+  size(1000, 500);
+  background(175, 225, 255);
+  smooth();
+  String[]data = loadStrings("year.csv");
+
+  gdp= new float[data.length];
+  year= new int[data.length];
+  x1=60;
+  x2=width-50;
+  y1=100;
+  y2=height-y1;
+
+  for (int i=0; i<data.length; i++) {
+    String[] pieces = split(data[i], ","); 
+
+    //create array of gdp and array of years
+    gdp[i]= float(pieces[1]);
+    year[i]=int(pieces[0]);
+  }
+  //println(year);
+  maxYear= max(year);
+  minYear= min(year);
+  maxGDP= max(gdp);
+  minGDP= min(gdp);
+  println("Max: "+maxGDP);
+  println("Min: "+minGDP);
+  println(data.length);
+}
+
+void draw() {
+  background(175, 225, 255);
+  fill(255);
+  noStroke();
+  rect(x1,y1,x2-x1,y2+5-y1);
+  
+  
+  //source
+  fill(0);
+  textAlign(RIGHT,BOTTOM);
+  text("Source: DataHub.io", width, height);
+  
+  //title
+  fill(0);
+  textSize(30);
+  textAlign(LEFT);
+  text("Gross Domestic Product of the United States", x1, y1-40);
+  
+  
+  textSize(13);
+  drawGraph(gdp, maxGDP, minGDP);
+  drawYLabels();
+  drawXLabels();
+  
+  save("Hou_P3.jpg");
+  
+}
+
+void drawGraph(float[] data, float yMax, float yMin) {
+  stroke(0);
+  strokeWeight(2);
+  noFill();
+  beginShape();
+  for (int i=0; i<data.length; i++) {
+    float x= map(i, 0, data.length-1, x1, x2);
+    float y= map(data[i], yMin, yMax, y2, y1);
+    vertex(x, y);
+    if (pointLocation(mouseX, x)) {
+      fill(255);
+      point(x, y);
+      stroke(0);
+      fill(0);
+      textAlign(CENTER);
+      text("GDP of year "+year[i]+": "+data[i], x, y1-10);
+      line(x, y1, x, y2);
+      noFill();
+    }
+  }
+  endShape();
+}
+
+void drawYLabels() {
+  fill(0);
+  textAlign(CENTER);
+  text("Billions of Dollars", x1, y1-15);
+  textAlign(RIGHT);
+  line(x1, y2+5, x1, y1);
+  for (float i=0; i<=maxGDP; i=i+2000) {
+    float y=map(i, minGDP, maxGDP, y2+5, y1); 
+    text(int(i), x1-10, y);
+    line(x1, y, x1-5, y);
+  }
+}
+
+void drawXLabels() {
+  textAlign(LEFT,TOP);
+  text("Year", x2+5, y2+5);
+  textAlign(RIGHT, TOP);
+  line(x1, y2+5, x2, y2+5);
+  for (float i=minYear; i<=maxYear; i=i+5) {
+    float x=map(i, minYear, maxYear, x1, x2);
+    text(int(i), x, y2+15);
+    line(x, y2+5, x, y2+10);
+  }
+}
+
+boolean pointLocation(float mx, float x) {
+  return (mx>=x && mx<=x+5);
+}
